@@ -89,7 +89,9 @@ def init_database():
 # WEB INTERFACE ROUTES
 @app.route('/')
 def index():
-
+    """
+    Display list of all banks in the database.
+    """
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -120,3 +122,29 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error(f"Failed to start application: {e}")
         raise
+
+@app.route('/bank/<int:bank_id>')
+def view_bank(bank_id):
+    """
+    Display details for a specific bank.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Use parameterized query to prevent SQL injection
+            cursor.execute("SELECT id, name, location FROM banks WHERE id = ?", (bank_id,))
+            bank = cursor.fetchone()
+        
+        if bank:
+            logger.info(f"Retrieved bank with ID: {bank_id}")
+            return render_template('view_bank.html', bank=bank)
+        else:
+            logger.warning(f"Bank with ID {bank_id} not found")
+            flash('Bank not found', 'warning')
+            return redirect(url_for('index'))
+            
+    except Exception as e:
+        logger.error(f"Error fetching bank {bank_id}: {e}")
+        flash(f'Error fetching bank: {str(e)}', 'danger')
+        return redirect(url_for('index'))
