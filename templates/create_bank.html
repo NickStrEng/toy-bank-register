@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Bank - Bank Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Add New Bank</h2>
+            </div>
+            <div class="card-body">
+                <!-- Create Bank Form -->
+                <form method="POST" action="{{ url_for('create_bank') }}">
+                    <!-- Bank Name Field -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            Bank Name <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="name" 
+                               name="name" 
+                               placeholder="Enter bank name"
+                               required 
+                               autofocus>
+                        <div class="form-text">
+                            Enter the official name of the bank.
+                        </div>
+                    </div>
+                    
+                    <!-- Location Field -->
+                    <div class="mb-3">
+                        <label for="location" class="form-label">
+                            Location <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="location" 
+                               name="location" 
+                               placeholder="Enter bank location"
+                               required>
+                        <div class="form-text">
+                            Enter the city or address where the bank is located.
+                        </div>
+                    </div>
+                    
+                    <!-- Required Fields Note -->
+                    <div class="alert alert-info" role="alert">
+                        <small><span class="text-danger">*</span> Required fields</small>
+                    </div>
+                    
+                    <!-- Form Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Create Bank
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Help Card -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h6 class="card-title">Need Help?</h6>
+                <p class="card-text small text-muted">
+                    Fill in all required fields marked with <span class="text-danger">*</span> to add a new bank to the system.
+                    The bank name should be unique and easily identifiable.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
