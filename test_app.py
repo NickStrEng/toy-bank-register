@@ -1,14 +1,13 @@
 """
 Unit Tests for Bank Management Application
 ===========================================
-Comprehensive test suite using PyTest to test all CRUD operations,
+Test suite using PyTest to test all CRUD operations,
 both for web routes and RESTful API endpoints.
 
-Author: Your Name
-Date: 2024
+Author: Nick Psyrras
+Date: 2025
 
-Run tests with: pytest test_app.py -v
-Run with coverage: pytest test_app.py -v --cov=app
+Run tests with on CLI: pytest test_app.py -v
 """
 
 import pytest
@@ -16,7 +15,6 @@ import json
 from app import app, init_database, get_db_connection
 
 # PYTEST FIXTURES
-
 
 @pytest.fixture
 def client():
