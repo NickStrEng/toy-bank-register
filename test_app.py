@@ -368,7 +368,6 @@ class TestAPIEndpoints:
     def test_api_update_bank_missing_fields(self, client):
         """
         Test API endpoint for updating bank with incomplete data.
-        
         Setup: Create a test bank
         Expected: HTTP 400, success=false, error message
         """
@@ -384,4 +383,30 @@ class TestAPIEndpoints:
         data = json.loads(response.data)
         
         assert response.status_code == 400
+        assert data['success'] is False
+
+    def test_api_delete_bank_success(self, client):
+        """
+        Test API endpoint for deleting a bank.
+        Setup: Create a test bank
+        Expected: HTTP 200, success=true, bank deleted
+        """
+        bank_id = create_test_bank("Delete API Bank", "Delete City")
+        
+        response = client.delete(f'/api/banks/{bank_id}')
+        data = json.loads(response.data)
+        
+        assert response.status_code == 200
+        assert data['success'] is True
+    
+    def test_api_delete_bank_not_found(self, client):
+        """
+        Test API endpoint for deleting non-existent bank.
+        
+        Expected: HTTP 404, success=false, error message
+        """
+        response = client.delete('/api/banks/99999')
+        data = json.loads(response.data)
+        
+        assert response.status_code == 404
         assert data['success'] is False
