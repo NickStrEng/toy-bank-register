@@ -202,8 +202,7 @@ class BankAPIClient:
         except requests.exceptions.RequestException as e:
             print(f"Error deleting bank {bank_id}: {e}")
             return False
-
-
+        
 def demonstrate_api_usage():
     """
     Demonstration function showing how to use the API client
@@ -293,6 +292,7 @@ def demonstrate_api_usage():
     print("=" * 70)
     print("Demonstration Complete")
     print("=" * 70)
+
 
 
 if __name__ == "__main__":
