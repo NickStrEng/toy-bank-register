@@ -767,6 +767,7 @@ dependencies = [
     { name = "flask" },
     { name = "pandas" },
     { name = "pyodbc" },
+    { name = "python-dotenv" },
     { name = "requests" },
 ]
 
@@ -776,6 +777,7 @@ requires-dist = [
     { name = "flask", specifier = ">=3.1.2" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pyodbc", specifier = ">=5.3.0" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "requests", specifier = ">=2.32.5" },
 ]
 
