@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ bank.name }} - Bank Management{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h2 class="mb-0">Edit Bank</h2>
+            </div>
+            <div class="card-body">
+                <!-- Current Bank Info -->
+                <div class="alert alert-light" role="alert">
+                    <strong>Editing:</strong> {{ bank.name }} (ID: {{ bank.id }})
+                </div>
+                
+                <!-- Edit Bank Form -->
+                <form method="POST" action="{{ url_for('edit_bank', bank_id=bank.id) }}">
+                    <!-- Bank Name Field -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            Bank Name <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="name" 
+                               name="name" 
+                               value="{{ bank.name }}"
+                               placeholder="Enter bank name"
+                               required 
+                               autofocus>
+                        <div class="form-text">
+                            Update the official name of the bank.
+                        </div>
+                    </div>
+                    
+                    <!-- Location Field -->
+                    <div class="mb-3">
+                        <label for="location" class="form-label">
+                            Location <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="location" 
+                               name="location" 
+                               value="{{ bank.location }}"
+                               placeholder="Enter bank location"
+                               required>
+                        <div class="form-text">
+                            Update the city or address where the bank is located.
+                        </div>
+                    </div>
+                    
+                    <!-- Required Fields Note -->
+                    <div class="alert alert-info" role="alert">
+                        <small><span class="text-danger">*</span> Required fields</small>
+                    </div>
+                    
+                    <!-- Form Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            Update Bank
+                        </button>
+                        <a href="{{ url_for('view_bank', bank_id=bank.id) }}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Warning Card -->
+        <div class="card mt-3 border-warning">
+            <div class="card-body">
+                <h6 class="card-title text-warning">
+                    <svg width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                        <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                        <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                    </svg>
+                    Important
+                </h6>
+                <p class="card-text small text-muted mb-0">
+                    Changes will be saved immediately. Make sure all information is correct before updating.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
