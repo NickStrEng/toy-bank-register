@@ -94,12 +94,12 @@ GO
 uv run python app.py
 ```
 
-Visit: **http://localhost:5000**
+Visit: **http://localhost:5001**
 
 ## Verify Installation
 
 ### Test Web Interface
-1. Open browser to `http://localhost:5000`
+1. Open browser to `http://localhost:5001`
 2. Click "Add New Bank"
 3. Fill in form and submit
 4. Verify bank appears in list
