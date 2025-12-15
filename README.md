@@ -96,8 +96,6 @@ uv run python app.py
 
 Visit: **http://localhost:5001**
 
-## Verify Installation
-
 ### Test Web Interface
 1. Open browser to `http://localhost:5001`
 2. Click "Add New Bank"
@@ -127,7 +125,7 @@ uv run pytest
 uv run python app.py
 ```
 
-## 📁 Complete Project Structure
+## Complete Project Structure
 
 ```
 toy-bank-register/
