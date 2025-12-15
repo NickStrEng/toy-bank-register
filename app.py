@@ -8,27 +8,32 @@ Author: Nick Psyrras
 Date: 2025
 """
 
-from flask import Flask, render_template, redirect, request, url_for, flash
+from flask import Flask, jsonify, render_template, redirect, request, url_for, flash
 import pyodbc
+from dotenv import load_dotenv
+import os
 from contextlib import contextmanager
 import logging
 
 # Initialize Flask application
 app = Flask(__name__)
-app.secret_key = "af95e657e0c8bd551aba2b00a292dfb0c02a3211a7cb361bcfd332a9225f2091"
 
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+load_dotenv()
+
+app.secret_key = os.getenv("SECRET_KEY")
+
 # DATABASE CONFIGURATION
 DB_CONFIG = {
-    "server": 'localhost,1433',  # SQL Server instance address
-    "database": "BanksDB",  # Database name
-    "username": "SA",  # SQL Server username
-    "password": "password123@",  # SQL Server password
-    "driver": "{ODBC Driver 18 for SQL Server}",  # ODBC driver version
+    "server": os.getenv("DB_SERVER"),
+    "database": os.getenv("DB_NAME"),
+    "username": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "driver": "{ODBC Driver 17 for SQL Server}",
 }
 
 
@@ -235,8 +240,9 @@ def edit_bank(bank_id):
         logger.error(f"Error fetching bank {bank_id} for editing: {e}")
         flash(f"Error fetching bank: {str(e)}", "danger")
         return redirect(url_for("index"))
-    
-@app.route('/bank/<int:bank_id>/delete', methods=['POST'])
+
+
+@app.route("/bank/<int:bank_id>/delete", methods=["POST"])
 def delete_bank(bank_id):
     """
     Delete a bank record from the database.
@@ -244,19 +250,209 @@ def delete_bank(bank_id):
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            
+
             # Delete bank using parameterized query
             cursor.execute("DELETE FROM banks WHERE id = ?", (bank_id,))
             conn.commit()
-            
+
         logger.info(f"Bank {bank_id} deleted successfully")
-        flash('Bank deleted successfully!', 'success')
-        
+        flash("Bank deleted successfully!", "success")
+
     except Exception as e:
         logger.error(f"Error deleting bank {bank_id}: {e}")
-        flash(f'Error deleting bank: {str(e)}', 'danger')
-    
-    return redirect(url_for('index'))
+        flash(f"Error deleting bank: {str(e)}", "danger")
+
+    return redirect(url_for("index"))
+
+
+# RESTful API endpoints
+@app.route("/api/banks", methods=["GET"])
+def api_get_banks():
+    """
+    RESTful API: Get all banks.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, name, location FROM banks ORDER BY name")
+            banks = cursor.fetchall()
+
+        # Convert database rows to dictionary format
+        banks_list = [
+            {"id": bank.id, "name": bank.name, "location": bank.location}
+            for bank in banks
+        ]
+
+        logger.info(f"API: Retrieved {len(banks_list)} banks")
+        return jsonify(
+            {"success": True, "data": banks_list, "count": len(banks_list)}
+        ), 200
+
+    except Exception as e:
+        logger.error(f"API error fetching banks: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/banks/<int:bank_id>", methods=["GET"])
+def api_get_bank(bank_id):
+    """
+    RESTful API: Get a specific bank by ID.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, name, location FROM banks WHERE id = ?", (bank_id,)
+            )
+            bank = cursor.fetchone()
+
+        if bank:
+            logger.info(f"API: Retrieved bank {bank_id}")
+            return jsonify(
+                {
+                    "success": True,
+                    "data": {
+                        "id": bank.id,
+                        "name": bank.name,
+                        "location": bank.location,
+                    },
+                }
+            ), 200
+        else:
+            logger.warning(f"API: Bank {bank_id} not found")
+            return jsonify({"success": False, "error": "Bank not found"}), 404
+
+    except Exception as e:
+        logger.error(f"API error fetching bank {bank_id}: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/banks", methods=["POST"])
+def api_create_bank():
+    """
+    RESTful API: Create a new bank.
+    """
+    try:
+        # Parse JSON request body
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+
+        # Extract and validate fields
+        name = data.get("name", "").strip()
+        location = data.get("location", "").strip()
+
+        if not name or not location:
+            logger.warning("API: Validation failed - name and location required")
+            return jsonify(
+                {"success": False, "error": "Name and location are required"}
+            ), 400
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            # Insert new bank
+            cursor.execute(
+                "INSERT INTO banks (name, location) VALUES (?, ?)", (name, location)
+            )
+            conn.commit()
+
+            # Get the ID of the newly created bank
+            cursor.execute("SELECT @@IDENTITY AS id")
+            new_id = cursor.fetchone()[0]
+
+        logger.info(f"API: Bank created with ID {new_id}")
+        return jsonify(
+            {
+                "success": True,
+                "data": {"id": new_id, "name": name, "location": location},
+                "message": "Bank created successfully",
+            }
+        ), 201
+
+    except Exception as e:
+        logger.error(f"API error creating bank: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/banks/<int:bank_id>", methods=["PUT"])
+def api_update_bank(bank_id):
+    """
+    RESTful API: Update an existing bank.
+    """
+    try:
+        # Parse JSON request body
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"success": False, "error": "No data provided"}), 400
+
+        # Extract and validate fields
+        name = data.get("name", "").strip()
+        location = data.get("location", "").strip()
+
+        if not name or not location:
+            logger.warning(f"API: Validation failed for bank {bank_id}")
+            return jsonify(
+                {"success": False, "error": "Name and location are required"}
+            ), 400
+
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            # Check if bank exists
+            cursor.execute("SELECT id FROM banks WHERE id = ?", (bank_id,))
+            if not cursor.fetchone():
+                logger.warning(f"API: Bank {bank_id} not found for update")
+                return jsonify({"success": False, "error": "Bank not found"}), 404
+
+            # Update bank
+            cursor.execute(
+                "UPDATE banks SET name = ?, location = ? WHERE id = ?",
+                (name, location, bank_id),
+            )
+            conn.commit()
+
+        logger.info(f"API: Bank {bank_id} updated successfully")
+        return jsonify(
+            {
+                "success": True,
+                "data": {"id": bank_id, "name": name, "location": location},
+                "message": "Bank updated successfully",
+            }
+        ), 200
+
+    except Exception as e:
+        logger.error(f"API error updating bank {bank_id}: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/banks/<int:bank_id>", methods=["DELETE"])
+def api_delete_bank(bank_id):
+    """
+    RESTful API: Delete a bank.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+
+            # Check if bank exists before deleting
+            cursor.execute("SELECT id FROM banks WHERE id = ?", (bank_id,))
+            if not cursor.fetchone():
+                logger.warning(f"API: Bank {bank_id} not found for deletion")
+                return jsonify({"success": False, "error": "Bank not found"}), 404
+
+            # Delete bank
+            cursor.execute("DELETE FROM banks WHERE id = ?", (bank_id,))
+            conn.commit()
+
+        logger.info(f"API: Bank {bank_id} deleted successfully")
+        return jsonify({"success": True, "message": "Bank deleted successfully"}), 200
+
+    except Exception as e:
+        logger.error(f"API error deleting bank {bank_id}: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # APPLICATION ENTRY POINT
