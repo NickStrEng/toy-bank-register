@@ -12,7 +12,7 @@ import requests
 from typing import Optional, Dict, List
 
 # Base URL for the API (adjust if running on different host/port)
-BASE_URL = "http://127.0.0.1:5001/api"
+BASE_URL = "http://localhost:5001/api"
 
 
 class BankAPIClient:
@@ -202,7 +202,8 @@ class BankAPIClient:
         except requests.exceptions.RequestException as e:
             print(f"Error deleting bank {bank_id}: {e}")
             return False
-        
+
+
 def demonstrate_api_usage():
     """
     Demonstration function showing how to use the API client
@@ -294,7 +295,6 @@ def demonstrate_api_usage():
     print("=" * 70)
 
 
-
 if __name__ == "__main__":
     """
     Main entry point for the API client program.
@@ -302,7 +302,7 @@ if __name__ == "__main__":
     """
 
     print("\nBank Management API Client")
-    print("Make sure the Flask application is running on http://127.0.0.1:5001")
+    print("Make sure the Flask application is running on http://localhost:5001")
 
     # Run demonstration
     demonstrate_api_usage()

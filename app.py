@@ -35,8 +35,6 @@ DB_CONFIG = {
     "password": os.getenv("DB_PASSWORD"),
     "driver": "{ODBC Driver 18 for SQL Server}",
 }
-print(DB_CONFIG)
-
 
 # DATABASE CONNECTION MANAGEMENT
 @contextmanager
@@ -53,7 +51,6 @@ def get_db_connection():
             f"TrustServerCertificate=yes"
             # f"Encrypt=yes;"  # Enable encryption
         )
-        print(connection_string)
 
         # Establish connection to SQL Server
         conn = pyodbc.connect(connection_string)
